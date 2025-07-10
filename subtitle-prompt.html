@@ -1,25 +1,55 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
+    <!-- Meta Information -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ابزار هوشمند ساخت پرامپت (نسخه 2.0)</title>
+    <title data-lang-key="pageTitle">ابزار هوشمند ساخت پرامپت</title>
+
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Main Styles -->
     <style>
         :root {
+            /* Light Mode (Default) */
             --primary-color: #2c3e50;
-            --secondary-color: #e67e22; /* A new color for the smart version */
+            --secondary-color: #27ae60;
+            --link-color: #2980b9;
+            --save-color: #8e44ad;
+            --clear-color: #c0392b;
             --background-color: #ecf0f1;
-            --text-color: #333;
+            --text-color: #34495e;
             --container-bg: #ffffff;
-            --border-radius: 8px;
-            --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --input-bg: #ffffff;
+            --input-border: #bdc3c7;
+            --placeholder-color: #7f8c8d;
+            --output-bg: #f8f9f9;
+            --border-radius: 12px;
+            --box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
         }
 
+        body.dark-mode {
+            /* Dark Mode */
+            --primary-color: #ecf0f1;
+            --secondary-color: #2ecc71;
+            --link-color: #3498db;
+            --save-color: #9b59b6;
+            --clear-color: #e74c3c;
+            --background-color: #2c3e50;
+            --text-color: #bdc3c7;
+            --container-bg: #34495e;
+            --input-bg: #4a6278;
+            --input-border: #567086;
+            --placeholder-color: #95a5a6;
+            --output-bg: #2c3e50;
+        }
+
+        /* General Body Styles */
         body {
-            font-family: 'Vazirmatn', 'Tahoma', sans-serif;
+            font-family: 'Vazirmatn', 'Roboto', sans-serif;
             background-color: var(--background-color);
             color: var(--text-color);
             margin: 0;
@@ -28,8 +58,10 @@
             justify-content: center;
             align-items: flex-start;
             min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
         }
 
+        /* Main Container */
         .container {
             width: 100%;
             max-width: 700px;
@@ -37,21 +69,84 @@
             padding: 30px;
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
+            transition: background-color 0.3s;
         }
 
         h1 {
             color: var(--primary-color);
             text-align: center;
             margin-bottom: 10px;
+            transition: color 0.3s;
         }
         
         p.subtitle {
             text-align: center;
             margin-top: 0;
             margin-bottom: 30px;
-            color: #7f8c8d;
         }
 
+        /* Settings Toggles (Theme & Language) */
+        .settings-toggles {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--input-border);
+        }
+
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 26px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--secondary-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Form Elements */
         .form-group {
             margin-bottom: 20px;
         }
@@ -61,26 +156,62 @@
             margin-bottom: 8px;
             font-weight: bold;
             color: var(--primary-color);
+            transition: color 0.3s;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 8px;
         }
 
         input {
             width: 100%;
             padding: 12px;
-            border: 1px solid #bdc3c7;
+            border: 1px solid var(--input-border);
             border-radius: var(--border-radius);
-            font-family: 'Vazirmatn', 'Tahoma', sans-serif;
+            font-family: inherit;
             font-size: 1rem;
             box-sizing: border-box;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+            flex-grow: 1;
         }
+        
+        input::placeholder {
+            color: var(--placeholder-color);
+            opacity: 1;
+        }
+        input:-ms-input-placeholder { color: var(--placeholder-color); }
+        input::-ms-input-placeholder { color: var(--placeholder-color); }
 
-        button {
+        /* Buttons */
+        .input-group button {
+            padding: 0 15px;
+            flex-shrink: 0;
+            border: none;
+            color: white;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            transition: opacity 0.3s;
+        }
+        .input-group button:hover {
+            opacity: 0.85;
+        }
+        
+        #save-key-btn { background-color: var(--save-color); }
+        #clear-key-btn { background-color: var(--clear-color); }
+
+        button#generate-btn {
             width: 100%;
             padding: 15px;
             background-color: var(--secondary-color);
             color: white;
             border: none;
             border-radius: var(--border-radius);
-            font-family: 'Vazirmatn', 'Tahoma', sans-serif;
+            font-family: inherit;
             font-size: 1.1rem;
             font-weight: bold;
             cursor: pointer;
@@ -90,35 +221,60 @@
             align-items: center;
         }
 
-        button:hover {
-            background-color: #d35400;
-        }
+        button#generate-btn:hover { opacity: 0.9; }
+        button:disabled { background-color: #95a5a6; cursor: not-allowed; }
         
-        button:disabled {
-            background-color: #95a5a6;
-            cursor: not-allowed;
-        }
-
+        /* Output Section */
         #output-container {
             margin-top: 30px;
-            border-top: 2px solid #ecf0f1;
+            border-top: 1px solid var(--input-border);
             padding-top: 20px;
         }
+        
+        .movie-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        #movie-poster {
+            max-width: 200px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            margin-bottom: 15px;
+        }
+        
+        #imdb-link {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--link-color);
+            color: white;
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        
+        #imdb-link:hover { opacity: 0.9; }
 
         #prompt-output {
             width: 100%;
-            height: 450px; /* Increased height */
+            height: 450px;
             padding: 15px;
-            border: 1px solid #bdc3c7;
+            border: 1px solid var(--input-border);
             border-radius: var(--border-radius);
             font-family: 'Consolas', 'Courier New', monospace;
             direction: ltr;
             text-align: left;
-            background-color: #f8f9f9;
-            white-space: pre-wrap; /* Allow wrapping */
+            background-color: var(--output-bg);
+            color: var(--text-color);
+            white-space: pre-wrap;
             line-height: 1.5;
             box-sizing: border-box;
             resize: vertical;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
         }
         
         .copy-button {
@@ -126,13 +282,12 @@
             width: 150px;
             margin: 10px auto 0 auto;
             padding: 10px;
-            background-color: #16a085;
+            background-color: var(--save-color);
             font-size: 0.9rem;
         }
-        .copy-button:hover {
-            background-color: #117a65;
-        }
+        .copy-button:hover { opacity: 0.9; }
         
+        /* Loading Spinner */
         .spinner {
             width: 20px;
             height: 20px;
@@ -147,86 +302,205 @@
             to { transform: rotate(360deg); }
         }
 
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--input-border);
+            font-size: 0.9rem;
+            color: var(--placeholder-color);
+            transition: border-color 0.3s, color 0.3s;
+        }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>ابزار هوشمند ساخت پرامپت (v2.0)</h1>
-        <p class="subtitle">متصل به پایگاه داده آنلاین فیلم (OMDb API)</p>
+        <!-- Header: Toggles for Theme and Language -->
+        <div class="settings-toggles">
+            <div class="toggle-group">
+                <span data-lang-key="themeLabel">حالت تاریک</span>
+                <label class="switch">
+                    <input type="checkbox" id="theme-toggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="toggle-group">
+                <span data-lang-key="langLabel">English</span>
+                <label class="switch">
+                    <input type="checkbox" id="lang-toggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
 
+        <!-- Main Title and Subtitle -->
+        <h1 data-lang-key="mainTitle">ابزار هوشمند ساخت پرامپت</h1>
+        <p class="subtitle" data-lang-key="subtitle">برای فیلم و سریال، متصل به OMDb API</p>
+
+        <!-- Input Forms -->
         <div class="form-group">
-            <label for="api-key">کلید API (از سایت OMDb)</label>
-            <input type="text" id="api-key" placeholder="کلید API خود را اینجا وارد کنید (مثال: ab1234cde)">
+            <label for="api-key" data-lang-key="apiKeyLabel">کلید API (از سایت OMDb)</label>
+            <div class="input-group">
+                <input type="text" id="api-key" data-lang-key-placeholder="apiKeyPlaceholder">
+                <button id="save-key-btn" data-lang-key="saveKeyButton">ذخیره</button>
+                <button id="clear-key-btn" data-lang-key="clearKeyButton">پاک کردن</button>
+            </div>
         </div>
 
         <div class="form-group">
-            <label for="movie-title">نام فیلم یا سریال</label>
-            <input type="text" id="movie-title" placeholder="مثال: The Shawshank Redemption">
+            <label for="movie-title" data-lang-key="movieTitleLabel">نام فیلم/سریال یا کد IMDb</label>
+            <input type="text" id="movie-title" data-lang-key-placeholder="movieTitlePlaceholder">
         </div>
 
+        <!-- Generate Button -->
         <button id="generate-btn">
-            <span>واکشی اطلاعات و ایجاد پرامپت</span>
+            <span data-lang-key="generateButton">واکشی اطلاعات و ایجاد پرامپت</span>
         </button>
 
+        <!-- Output Section (Initially Hidden) -->
         <div id="output-container" style="display: none;">
-            <h2>پرامپت سفارشی شما:</h2>
+            <div class="movie-info">
+                <img id="movie-poster" src="" alt="Movie Poster" style="display: none;">
+                <a id="imdb-link" href="#" target="_blank" style="display: none;" data-lang-key="imdbLink">مشاهده در IMDb</a>
+            </div>
+            <h2 data-lang-key="promptOutputTitle">پرامپت سفارشی شما:</h2>
             <textarea id="prompt-output" readonly></textarea>
-            <button id="copy-btn" class="copy-button">کپی کردن متن</button>
+            <button id="copy-btn" class="copy-button" data-lang-key="copyButton">کپی کردن متن</button>
         </div>
+
+        <!-- Footer for Version Number -->
+        <footer>
+            <p>Version 1.0.0</p>
+        </footer>
     </div>
 
     <script>
+        // --- TRANSLATION DATA ---
+        const translations = {
+            'fa': {
+                pageTitle: 'ابزار هوشمند ساخت پرامپت',
+                themeLabel: 'حالت تاریک',
+                langLabel: 'English',
+                mainTitle: 'ابزار هوشمند ساخت پرامپت',
+                subtitle: 'برای فیلم و سریال، متصل به OMDb API',
+                apiKeyLabel: 'کلید API (از سایت OMDb)',
+                apiKeyPlaceholder: 'کلید API خود را اینجا وارد کنید',
+                saveKeyButton: 'ذخیره',
+                keySaved: 'ذخیره شد!',
+                clearKeyButton: 'پاک کردن',
+                keyCleared: 'پاک شد!',
+                movieTitleLabel: 'نام فیلم/سریال یا کد IMDb',
+                movieTitlePlaceholder: 'مثال: Game of Thrones یا tt0944947',
+                generateButton: 'واکشی اطلاعات و ایجاد پرامپت',
+                imdbLink: 'مشاهده در IMDb',
+                promptOutputTitle: 'پرامپت سفارشی شما:',
+                copyButton: 'کپی کردن متن',
+                copySuccess: 'کپی شد!',
+                errorAlert: 'لطفاً کلید API و نام فیلم/سریال (یا کد IMDb) را وارد کنید.',
+                fetchErrorAlert: 'خطا در واکشی اطلاعات: '
+            },
+            'en': {
+                pageTitle: 'Smart Prompt Generator Tool',
+                themeLabel: 'Dark Mode',
+                langLabel: 'فارسی',
+                mainTitle: 'Smart Prompt Generator Tool',
+                subtitle: 'For Movies & Series, Connected to OMDb API',
+                apiKeyLabel: 'API Key (from OMDb)',
+                apiKeyPlaceholder: 'Enter your API key here',
+                saveKeyButton: 'Save',
+                keySaved: 'Saved!',
+                clearKeyButton: 'Clear',
+                keyCleared: 'Cleared!',
+                movieTitleLabel: 'Movie/Series Title or IMDb ID',
+                movieTitlePlaceholder: 'e.g., Game of Thrones or tt0944947',
+                generateButton: 'Fetch Info & Generate Prompt',
+                imdbLink: 'View on IMDb',
+                promptOutputTitle: 'Your Custom Prompt:',
+                copyButton: 'Copy Text',
+                copySuccess: 'Copied!',
+                errorAlert: 'Please enter your API key and a movie/series title (or IMDb ID).',
+                fetchErrorAlert: 'Error fetching data: '
+            }
+        };
+
+        let currentLang = 'fa';
+
+        // --- DOM ELEMENT CACHING ---
+        const themeToggle = document.getElementById('theme-toggle');
+        const langToggle = document.getElementById('lang-toggle');
         const generateBtn = document.getElementById('generate-btn');
         const copyBtn = document.getElementById('copy-btn');
-        
+        const saveKeyBtn = document.getElementById('save-key-btn');
+        const clearKeyBtn = document.getElementById('clear-key-btn');
+        const apiKeyInput = document.getElementById('api-key');
+
+        // --- EVENT LISTENERS ---
+        themeToggle.addEventListener('change', handleThemeToggle);
+        langToggle.addEventListener('change', handleLanguageToggle);
         generateBtn.addEventListener('click', fetchAndGeneratePrompt);
         copyBtn.addEventListener('click', copyPrompt);
+        saveKeyBtn.addEventListener('click', saveApiKey);
+        clearKeyBtn.addEventListener('click', clearApiKey);
+
+        // --- CORE FUNCTIONS ---
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.documentElement.lang = lang;
+            document.documentElement.dir = lang === 'fa' ? 'rtl' : 'ltr';
+
+            document.querySelectorAll('[data-lang-key]').forEach(el => {
+                const key = el.getAttribute('data-lang-key');
+                el.textContent = translations[lang][key];
+            });
+            
+            document.querySelectorAll('[data-lang-key-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-lang-key-placeholder');
+                el.placeholder = translations[lang][key];
+            });
+
+            localStorage.setItem('language', lang);
+        }
 
         async function fetchAndGeneratePrompt() {
-            const apiKey = document.getElementById('api-key').value.trim();
-            const title = document.getElementById('movie-title').value.trim();
+            const apiKey = apiKeyInput.value.trim();
+            const titleOrId = document.getElementById('movie-title').value.trim();
 
-            if (!apiKey || !title) {
-                alert('لطفاً کلید API و نام فیلم را وارد کنید.');
+            if (!apiKey || !titleOrId) {
+                alert(translations[currentLang].errorAlert);
                 return;
             }
 
             toggleLoading(true);
 
+            const isImdbId = /^tt\d{7,9}$/.test(titleOrId);
+            const searchParam = isImdbId ? `i=${titleOrId}` : `t=${encodeURIComponent(titleOrId)}`;
+            const apiUrl = `https://www.omdbapi.com/?${searchParam}&apikey=${apiKey}&plot=full`;
+
             try {
-                // Fetch movie data from OMDb API
-                const response = await fetch(`https://www.omdbapi.com/?t=${encodeURIComponent(title)}&apikey=${apiKey}&plot=full`);
+                const response = await fetch(apiUrl);
                 const data = await response.json();
 
-                if (data.Response === "False") {
-                    throw new Error(data.Error);
-                }
-
+                if (data.Response === "False") throw new Error(data.Error);
+                
                 generatePrompt(data);
 
             } catch (error) {
-                alert(`خطا در واکشی اطلاعات: ${error.message}`);
+                alert(`${translations[currentLang].fetchErrorAlert}${error.message}`);
+                document.getElementById('output-container').style.display = 'none';
             } finally {
                 toggleLoading(false);
             }
         }
 
         function generatePrompt(data) {
-            const { Title, Year, Genre, Plot } = data;
-            const primaryGenre = Genre.split(',')[0].toLowerCase(); // e.g., "action", "comedy"
-            let role = "an expert translator specializing in subtitling for movies and series";
-            let tone = "متناسب با ژانر و فضای داستان"; // Default tone
+            const { Title, Year, Genre, Plot, Poster, imdbID } = data;
             
-            // Simple genre to tone mapping
-            if (primaryGenre.includes('action') || primaryGenre.includes('thriller')) tone = "سریع، پرانرژی و هیجان‌انگیز.";
-            if (primaryGenre.includes('comedy')) tone = "دوستانه، بسیار عامیانه و طنزآمیز.";
-            if (primaryGenre.includes('drama') || primaryGenre.includes('history')) tone = "جدی، عمیق و احساسی.";
-            if (primaryGenre.includes('sci-fi') || primaryGenre.includes('fantasy')) tone = "حماسی، مرموز یا تکنیکی، متناسب با دنیای داستان.";
-            if (primaryGenre.includes('horror') || primaryGenre.includes('mystery')) tone = "پُر از تعلیق، مضطرب‌کننده و مرموز.";
-            if (primaryGenre.includes('crime')) tone = "جدی، واقع‌گرایانه و دقیق.";
-            if (primaryGenre.includes('animation') || primaryGenre.includes('family')) tone = "دوستانه، روان و قابل فهم برای همه سنین.";
-            if (primaryGenre.includes('documentary')) tone = "رسمی، علمی و دقیق.";
+            updateMovieInfo(Poster, imdbID);
+
+            const primaryGenre = Genre.split(',')[0].toLowerCase();
+            const tone = getToneFromGenre(primaryGenre);
 
             const promptText = `You are an expert translator specializing in subtitling. Your task is to translate the following English subtitle text into natural, fluent, and modern Persian (Farsi).
 
@@ -247,46 +521,118 @@ Respond ONLY with the translated Persian text lines, separated by \`---\`.
 [PASTE SUBTITLE TEXT HERE]
 `;
             
-            const outputContainer = document.getElementById('output-container');
-            const outputTextarea = document.getElementById('prompt-output');
-            
-            outputTextarea.value = promptText;
-            outputContainer.style.display = 'block';
+            document.getElementById('prompt-output').value = promptText;
+            document.getElementById('output-container').style.display = 'block';
+        }
+
+        // --- UI HANDLERS & HELPERS ---
+        function handleThemeToggle() {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+        }
+
+        function handleLanguageToggle() {
+            setLanguage(langToggle.checked ? 'en' : 'fa');
+        }
+
+        function saveApiKey() {
+            const apiKey = apiKeyInput.value.trim();
+            if (apiKey) {
+                localStorage.setItem('omdbApiKey', apiKey);
+                const originalText = saveKeyBtn.textContent;
+                saveKeyBtn.textContent = translations[currentLang].keySaved;
+                setTimeout(() => {
+                    saveKeyBtn.textContent = originalText;
+                }, 2000);
+            }
+        }
+
+        function clearApiKey() {
+            localStorage.removeItem('omdbApiKey');
+            apiKeyInput.value = '';
+            const originalText = clearKeyBtn.textContent;
+            clearKeyBtn.textContent = translations[currentLang].keyCleared;
+            setTimeout(() => {
+                clearKeyBtn.textContent = originalText;
+            }, 2000);
         }
 
         function toggleLoading(isLoading) {
             const buttonText = generateBtn.querySelector('span');
+            const spinner = generateBtn.querySelector('.spinner');
+            
+            generateBtn.disabled = isLoading;
             if (isLoading) {
-                generateBtn.disabled = true;
                 buttonText.style.display = 'none';
-                if (!generateBtn.querySelector('.spinner')) {
-                    const spinner = document.createElement('div');
-                    spinner.className = 'spinner';
-                    generateBtn.appendChild(spinner);
+                if (!spinner) {
+                    const newSpinner = document.createElement('div');
+                    newSpinner.className = 'spinner';
+                    generateBtn.appendChild(newSpinner);
                 }
             } else {
-                generateBtn.disabled = false;
                 buttonText.style.display = 'inline';
-                const spinner = generateBtn.querySelector('.spinner');
-                if (spinner) {
-                    generateBtn.removeChild(spinner);
-                }
+                if (spinner) spinner.remove();
             }
+        }
+        
+        function updateMovieInfo(posterUrl, imdbId) {
+            const posterImg = document.getElementById('movie-poster');
+            const imdbLink = document.getElementById('imdb-link');
+
+            posterImg.src = (posterUrl && posterUrl !== "N/A") ? posterUrl : '';
+            posterImg.style.display = (posterUrl && posterUrl !== "N/A") ? 'block' : 'none';
+            
+            imdbLink.href = `https://www.imdb.com/title/${imdbId}/`;
+            imdbLink.style.display = 'inline-block';
+        }
+
+        function getToneFromGenre(genre) {
+            if (genre.includes('action') || genre.includes('thriller')) return "سریع، پرانرژی و هیجان‌انگیز.";
+            if (genre.includes('comedy')) return "دوستانه، بسیار عامیانه و طنزآمیز.";
+            if (genre.includes('drama') || genre.includes('history')) return "جدی، عمیق و احساسی.";
+            if (genre.includes('sci-fi') || genre.includes('fantasy')) return "حماسی، مرموز یا تکنیکی، متناسب با دنیای داستان.";
+            if (genre.includes('horror') || genre.includes('mystery')) return "پُر از تعلیق، مضطرب‌کننده و مرموز.";
+            if (genre.includes('crime')) return "جدی، واقع‌گرایانه و دقیق.";
+            if (genre.includes('animation') || genre.includes('family')) return "دوستانه، روان و قابل فهم برای همه سنین.";
+            if (genre.includes('documentary')) return "رسمی، علمی و دقیق.";
+            return "متناسب با ژانر و فضای داستان";
         }
 
         function copyPrompt() {
             const outputTextarea = document.getElementById('prompt-output');
-            const copyBtn = document.getElementById('copy-btn');
-            
             navigator.clipboard.writeText(outputTextarea.value).then(() => {
-                copyBtn.textContent = 'کپی شد!';
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = translations[currentLang].copySuccess;
                 setTimeout(() => {
-                    copyBtn.textContent = 'کپی کردن متن';
+                    copyBtn.textContent = originalText;
                 }, 2000);
-            }).catch(err => {
-                alert('خطا در کپی کردن: ' + err);
             });
         }
+
+        // --- INITIALIZATION ---
+        function initialize() {
+            // Load saved theme
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                themeToggle.checked = true;
+            }
+
+            // Load saved language
+            const savedLang = localStorage.getItem('language') || 'fa';
+            langToggle.checked = (savedLang === 'en');
+            setLanguage(savedLang);
+
+            // Load saved API key
+            const savedApiKey = localStorage.getItem('omdbApiKey');
+            if (savedApiKey) {
+                apiKeyInput.value = savedApiKey;
+            }
+        }
+
+        // Start the application
+        initialize();
+
     </script>
 </body>
 </html>
