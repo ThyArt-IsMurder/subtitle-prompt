@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ابزار هوشمند ساخت پرامپت (نسخه 2.0)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #e67e22; /* A new color for the smart version */
+            --background-color: #ecf0f1;
+            --text-color: #333;
+            --container-bg: #ffffff;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Vazirmatn', 'Tahoma', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+            background-color: var(--container-bg);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        p.subtitle {
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 30px;
+            color: #7f8c8d;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #bdc3c7;
+            border-radius: var(--border-radius);
+            font-family: 'Vazirmatn', 'Tahoma', sans-serif;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-family: 'Vazirmatn', 'Tahoma', sans-serif;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        button:hover {
+            background-color: #d35400;
+        }
+        
+        button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        #output-container {
+            margin-top: 30px;
+            border-top: 2px solid #ecf0f1;
+            padding-top: 20px;
+        }
+
+        #prompt-output {
+            width: 100%;
+            height: 450px; /* Increased height */
+            padding: 15px;
+            border: 1px solid #bdc3c7;
+            border-radius: var(--border-radius);
+            font-family: 'Consolas', 'Courier New', monospace;
+            direction: ltr;
+            text-align: left;
+            background-color: #f8f9f9;
+            white-space: pre-wrap; /* Allow wrapping */
+            line-height: 1.5;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+        
+        .copy-button {
+            display: block;
+            width: 150px;
+            margin: 10px auto 0 auto;
+            padding: 10px;
+            background-color: #16a085;
+            font-size: 0.9rem;
+        }
+        .copy-button:hover {
+            background-color: #117a65;
+        }
+        
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>ابزار هوشمند ساخت پرامپت (v2.0)</h1>
+        <p class="subtitle">متصل به پایگاه داده آنلاین فیلم (OMDb API)</p>
+
+        <div class="form-group">
+            <label for="api-key">کلید API (از سایت OMDb)</label>
+            <input type="text" id="api-key" placeholder="کلید API خود را اینجا وارد کنید (مثال: ab1234cde)">
+        </div>
+
+        <div class="form-group">
+            <label for="movie-title">نام فیلم یا سریال</label>
+            <input type="text" id="movie-title" placeholder="مثال: The Shawshank Redemption">
+        </div>
+
+        <button id="generate-btn">
+            <span>واکشی اطلاعات و ایجاد پرامپت</span>
+        </button>
+
+        <div id="output-container" style="display: none;">
+            <h2>پرامپت سفارشی شما:</h2>
+            <textarea id="prompt-output" readonly></textarea>
+            <button id="copy-btn" class="copy-button">کپی کردن متن</button>
+        </div>
+    </div>
+
+    <script>
+        const generateBtn = document.getElementById('generate-btn');
+        const copyBtn = document.getElementById('copy-btn');
+        
+        generateBtn.addEventListener('click', fetchAndGeneratePrompt);
+        copyBtn.addEventListener('click', copyPrompt);
+
+        async function fetchAndGeneratePrompt() {
+            const apiKey = document.getElementById('api-key').value.trim();
+            const title = document.getElementById('movie-title').value.trim();
+
+            if (!apiKey || !title) {
+                alert('لطفاً کلید API و نام فیلم را وارد کنید.');
+                return;
+            }
+
+            toggleLoading(true);
+
+            try {
+                // Fetch movie data from OMDb API
+                const response = await fetch(`https://www.omdbapi.com/?t=${encodeURIComponent(title)}&apikey=${apiKey}&plot=full`);
+                const data = await response.json();
+
+                if (data.Response === "False") {
+                    throw new Error(data.Error);
+                }
+
+                generatePrompt(data);
+
+            } catch (error) {
+                alert(`خطا در واکشی اطلاعات: ${error.message}`);
+            } finally {
+                toggleLoading(false);
+            }
+        }
+
+        function generatePrompt(data) {
+            const { Title, Year, Genre, Plot } = data;
+            const primaryGenre = Genre.split(',')[0].toLowerCase(); // e.g., "action", "comedy"
+            let role = "an expert translator specializing in subtitling for movies and series";
+            let tone = "متناسب با ژانر و فضای داستان"; // Default tone
+            
+            // Simple genre to tone mapping
+            if (primaryGenre.includes('action') || primaryGenre.includes('thriller')) tone = "سریع، پرانرژی و هیجان‌انگیز.";
+            if (primaryGenre.includes('comedy')) tone = "دوستانه، بسیار عامیانه و طنزآمیز.";
+            if (primaryGenre.includes('drama') || primaryGenre.includes('history')) tone = "جدی، عمیق و احساسی.";
+            if (primaryGenre.includes('sci-fi') || primaryGenre.includes('fantasy')) tone = "حماسی، مرموز یا تکنیکی، متناسب با دنیای داستان.";
+            if (primaryGenre.includes('horror') || primaryGenre.includes('mystery')) tone = "پُر از تعلیق، مضطرب‌کننده و مرموز.";
+            if (primaryGenre.includes('crime')) tone = "جدی، واقع‌گرایانه و دقیق.";
+            if (primaryGenre.includes('animation') || primaryGenre.includes('family')) tone = "دوستانه، روان و قابل فهم برای همه سنین.";
+            if (primaryGenre.includes('documentary')) tone = "رسمی، علمی و دقیق.";
+
+            const promptText = `You are an expert translator specializing in subtitling. Your task is to translate the following English subtitle text into natural, fluent, and modern Persian (Farsi).
+
+**Key Instructions:**
+1.  **Preserve Core Meaning:** The original message and intent must be fully preserved.
+2.  **Natural & Conversational Tone:** The translation should sound natural. The tone should be: **${tone}**
+3.  **Cultural Adaptation:** Do not translate idioms or cultural references literally. Instead, find the closest equivalent Persian idiom or expression that conveys the same meaning and feeling.
+4.  **Subtitle Length:** Keep the lines concise and easy to read, suitable for subtitles that appear on screen for a short time.
+5.  **Context:**
+    * **Source:** ${Title} (${Year})
+    * **Genre(s):** ${Genre}
+    * **Plot Summary:** ${Plot}
+
+**Output Format:**
+Respond ONLY with the translated Persian text lines, separated by \`---\`.
+
+**Text to Translate:**
+[PASTE SUBTITLE TEXT HERE]
+`;
+            
+            const outputContainer = document.getElementById('output-container');
+            const outputTextarea = document.getElementById('prompt-output');
+            
+            outputTextarea.value = promptText;
+            outputContainer.style.display = 'block';
+        }
+
+        function toggleLoading(isLoading) {
+            const buttonText = generateBtn.querySelector('span');
+            if (isLoading) {
+                generateBtn.disabled = true;
+                buttonText.style.display = 'none';
+                if (!generateBtn.querySelector('.spinner')) {
+                    const spinner = document.createElement('div');
+                    spinner.className = 'spinner';
+                    generateBtn.appendChild(spinner);
+                }
+            } else {
+                generateBtn.disabled = false;
+                buttonText.style.display = 'inline';
+                const spinner = generateBtn.querySelector('.spinner');
+                if (spinner) {
+                    generateBtn.removeChild(spinner);
+                }
+            }
+        }
+
+        function copyPrompt() {
+            const outputTextarea = document.getElementById('prompt-output');
+            const copyBtn = document.getElementById('copy-btn');
+            
+            navigator.clipboard.writeText(outputTextarea.value).then(() => {
+                copyBtn.textContent = 'کپی شد!';
+                setTimeout(() => {
+                    copyBtn.textContent = 'کپی کردن متن';
+                }, 2000);
+            }).catch(err => {
+                alert('خطا در کپی کردن: ' + err);
+            });
+        }
+    </script>
+</body>
+</html>
